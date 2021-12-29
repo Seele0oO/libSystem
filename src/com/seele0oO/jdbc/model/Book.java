@@ -1,5 +1,8 @@
 package com.seele0oO.jdbc.model;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class Book {
 	private Integer id;
 	private String bookName;
@@ -10,6 +13,25 @@ public class Book {
 	private Integer number;
 	private Integer status;
 	private String remark;
+
+	public static Book initializeByResultSet(ResultSet rs)
+	{
+		Book book = new Book();
+		try {
+			book.id = rs.getInt("id");
+			book.bookName = rs.getString("book_name");
+			book.typeId = rs.getInt("type_id");
+			book.author = rs.getString("author");
+			book.publish = rs.getString("publish");
+			book.price = rs.getDouble("price");
+			book.number = rs.getInt("number");
+			book.status = rs.getInt("status");
+			book.remark = rs.getString("remark");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return book;
+	}
 
 	public Integer getId() {
 		return id;
@@ -97,4 +119,5 @@ public class Book {
 				", remark='" + remark + '\'' +
 				'}';
 	}
+
 }

@@ -1,12 +1,14 @@
-package com.seele0oO.oldJDBC.utils;
+package com.seele0oO.jdbc.Unit;
 
 
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class toolUtil {
-    //判断字符串是否为空
+public class ToolUtil {
+	public static boolean isEmpty;
+
+	//判断字符串是否为空
     public static boolean isEmpty(String str) {
         if(str != null &&! "".equals(str.trim())) {
             return false;

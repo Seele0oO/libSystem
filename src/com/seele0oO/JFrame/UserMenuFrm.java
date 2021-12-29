@@ -1,25 +1,30 @@
 package com.seele0oO.JFrame;
 
-import com.seele0oO.jdbc.Dao.BookDaoImpl;
-import com.seele0oO.jdbc.Dao.BorrowDetailDao;
+import com.seele0oO.jdbc.Dao.BookDao;
 import com.seele0oO.jdbc.Dao.BorrowDetailDaoImpl;
-import com.seele0oO.jdbc.Dao.UserDaoImpl;
+import com.seele0oO.jdbc.Unit.DBInJ;
+import com.seele0oO.jdbc.Unit.JDBCUtils;
 import com.seele0oO.jdbc.model.Book;
 import com.seele0oO.jdbc.model.User;
 import com.seele0oO.jdbc.model.borrowDetail;
-import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import static com.seele0oO.JFrame.LoginFrm.currentUser;
 
@@ -182,7 +187,37 @@ public class UserMenuFrm extends JFrame {
 		panel_2.add(textField_1);
 		// 查询按钮
 		button_1 = new JButton("查询");
+		button_1.addActionListener(new ActionListener() {
 
+			public void actionPerformed(ActionEvent e) { // 查询按钮单击事件----------------待实现
+				//1:书籍名称
+				//2.书籍作者
+				DBInJ.fastPreparedExecuteQuery("SELECT book.*, book_type.type_name FROM book, book_type WHERE "
+						+ (comboBox.getSelectedIndex() == 0 ? "book_name" : "author")
+						+ " LIKE ? AND book.type_id = book_type.id", (ResultSet resultSet) -> {
+					initializeBookTableData(resultSet);
+					return null;
+				}, "%" + textField_1.getText() + "%");
+
+
+
+/*				// 闭包 函数
+				Runnable z = () -> {
+					System.out.println("111");
+				};
+				Consumer<String> c = System.out::println;
+				c.accept("111");
+
+				Function<Integer, Integer> func = new Function<>() {
+					@Override
+					public Integer apply(Integer o) {
+						return o + 10;
+					}
+				};
+				func.apply(5);*/
+
+			}
+		});
 		button_1.setFont(new Font("幼圆", Font.BOLD, 16));
 		button_1.setBounds(408, 20, 93, 33);
 		panel_2.add(button_1);
@@ -194,49 +229,14 @@ public class UserMenuFrm extends JFrame {
 		comboBox.addItem("书籍作者");
 		panel_2.add(comboBox);
 		// 图书信息对应的表头
-		String[] BookTitle = { "编号", "书名", "类型", "作者", "描述" };
+		String[] BookTitle = {"编号", "书名", "类型", "作者", "描述"};
 		// 具体的各栏行记录 先用空的二位数组占位
-//		String[][] booklistArr = {};
-		String[][] booklistArr = new String[0][];
-//		String[][] booklistArr = new String[5][];
-		// 然后实例化 上面2个控件对象
-
-		button_1.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) { // 查询按钮单击事件----------------待实现
-				//1:书籍名称
-				//2.书籍作者
-				String keyword = textField_1.getText();
-				Integer choice = comboBox.getSelectedIndex();
-				BookDaoImpl sd = new BookDaoImpl();
-				ArrayList<Book> booklist;
-				if(choice==1){
-					booklist = sd.listByBookname("%"+keyword+"%");
-				}else{
-					booklist = sd.listByBookname("%"+keyword+"%");
-				}
-
-				System.out.println(booklist);
-				String[][] booklistArr = new String[booklist.size()][];
-				for (int i = 0; i < booklist.size(); i++) {
-					booklistArr[i]=new String[5];
-					booklistArr[i][0]=String.valueOf(booklist.get(i).getId());
-					booklistArr[i][1]=String.valueOf(booklist.get(i).getBookName());
-					booklistArr[i][2]=String.valueOf(booklist.get(i).getTypeId());
-					booklistArr[i][3]=String.valueOf(booklist.get(i).getAuthor());
-					booklistArr[i][4]=String.valueOf(booklist.get(i).getRemark());
-//					System.out.println(booklistArr[i]);
-				}
-				System.out.println(booklistArr);
-
-
-//				BookDates = booklistArr;
-			}
-		});
-
+		String[][] booklistArr = {};
 		bookModel = new DefaultTableModel(booklistArr, BookTitle);
 		bookTable = new JTable(bookModel);
-		// 获取所有图书信息--------------------------------待实现
+		// 获取所有图书信息-------------------------------
+		putDates(new Book());
+
 		panel_2.setLayout(null);
 		JScrollPane jscrollpane1 = new JScrollPane();
 		jscrollpane1.setBounds(22, 74, 607, 250);
@@ -289,7 +289,7 @@ public class UserMenuFrm extends JFrame {
 		// 借书表格添加鼠标事件监听器
 		bookTable.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent evt) { // 鼠标按下事件--------------待实现
-
+					
 			}
 		});
 		// 退出按钮添加动作监听器
@@ -311,6 +311,53 @@ public class UserMenuFrm extends JFrame {
 		jf.setResizable(true);
 	}
 
+	/**
+	 * 填充图书信息列表
+	 * @param resultSet 返回集
+	 * @throws SQLException 数据库异常
+	 */
+	private void initializeBookTableData(ResultSet resultSet) throws SQLException {
+		TableModel model = bookTable.getModel();
+		if (model instanceof DefaultTableModel defaultTableModel)
+		{
+			defaultTableModel.setRowCount(0);
+			while (resultSet.next())
+			{
+				Vector<Object> rowData = new Vector<>();
+				rowData.add(resultSet.getInt("id"));
+				rowData.add(resultSet.getString("book_name"));
+				rowData.add(resultSet.getString("type_name"));
+				rowData.add(resultSet.getString("author"));
+				rowData.add(resultSet.getString("remark"));
+				defaultTableModel.addRow(rowData);
+			}
+		}
+	}
+
+	private void putDates(Book book) {
+		DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
+		model.setRowCount(0);
+		Connection connection = null;
+		try {
+			connection = JDBCUtils.getConn();
+			book.setStatus(1);
+			ResultSet list = BookDao.list(connection, book);
+			while (list.next()) {
+				Vector rowData = new Vector();
+				rowData.add(list.getInt("id"));
+				rowData.add(list.getString("book_name"));
+				rowData.add(list.getString("type_name"));
+				rowData.add(list.getString("author"));
+				rowData.add(list.getString("remark"));
+				model.addRow(rowData);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	public static void main(String[] args) {
 //		try {
 //			BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.generalNoTranslucencyShadow;
@@ -318,6 +365,8 @@ public class UserMenuFrm extends JFrame {
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
+		LoginFrm.currentUser = new User();
+		LoginFrm.currentUser.setId(1);
 		new UserMenuFrm();
 	}
 }
