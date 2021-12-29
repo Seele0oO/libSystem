@@ -1,6 +1,9 @@
 package com.seele0oO.JFrame;
 
 
+import com.seele0oO.jdbc.Dao.UserDaoImpl;
+import com.seele0oO.jdbc.model.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -63,44 +66,63 @@ public class LoginFrm extends JFrame {
 				String username = userNameText.getText();
 				String password = passwordText.getText();
 				Boolean isAdmin = null; // 1,false,2,true
+				int loginstatus = -1;
 //				Integer loginstatus = LoginFrmFun.loginFrmLoginButtonOnclick(username, password, isAdmin);
 				//currentUser = username;
 //				System.out.println(loginstatus);
+				UserDaoImpl sd = new UserDaoImpl();
+				User getuser = sd.findByname(username);
 
 
-//				if (username.equals("") || password.equals("")) {
-//					JOptionPane.showMessageDialog(null, "未填写完成");
-//				} else {
-//					switch (LoginAdjust.confirm(username, password)) {
-//						case 0:
-//							// login success
-//							JOptionPane.showMessageDialog(null, "登录成功");
-//							// -------------------------------------------------------------------------------------------------------------------------------------------------//
-//							if (comboBox.getSelectedIndex() == 1) {
-//
-//								// user login
-//								// isadmin true->> AdminMenuFrm
-//								jf.dispose();
-//								new AdminMenuFrm();
-//							} else if(comboBox.getSelectedIndex() == 0) {
-//								// admin login
-//								jf.dispose();
-//								new UserMenuFrm();
-//							}
-//
-//							// isadmin false->> userMenuFrm
-//							break;
-//
-//						case 1:
-//							// 密码错误
-//							JOptionPane.showMessageDialog(null, "登录失败");
-//							break;
-//						case 2:
-//							// 未注册
-//							JOptionPane.showMessageDialog(null, "未注册");
-//							break;
-//					}
-//				}
+				if (username.equals("") || password.equals("")) {
+					JOptionPane.showMessageDialog(null, "未填写完成");
+				} else {
+					if (getuser.getPassword() == null) {
+//						JOptionPane.showMessageDialog(null, "未注册");
+						loginstatus=2;
+					} else {
+						if (getuser.getPassword().equals(password)) {
+							loginstatus = 0;
+							if (getuser.getRole() == 1) {
+								isAdmin = false;//user
+							} else if (getuser.getRole() == 2) {
+								isAdmin = true;
+							}
+						} else {
+							loginstatus = 1;
+						}
+					}
+					switch (loginstatus) {
+						case 0:
+							// login success
+							JOptionPane.showMessageDialog(null, "登录成功");
+							// -------------------------------------------------------------------------------------------------------------------------------------------------//
+							if (comboBox.getSelectedIndex() == 1) {
+								// user login
+								// isadmin true->> AdminMenuFrm
+								if (isAdmin) {
+									jf.dispose();
+									new AdminMenuFrm();
+								} else {
+									JOptionPane.showMessageDialog(null, "权限验证失败");
+								}
+							} else if (comboBox.getSelectedIndex() == 0) {
+								// admin login
+								jf.dispose();
+								new UserMenuFrm();
+
+							}
+							break;
+						case 1:
+							// 密码错误
+							JOptionPane.showMessageDialog(null, "登录失败");
+							break;
+						case 2:
+							// 未注册
+							JOptionPane.showMessageDialog(null, "未注册");
+							break;
+					}
+				}
 
 			}
 		});

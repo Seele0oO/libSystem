@@ -1,5 +1,8 @@
 package com.seele0oO.JFrame;
 
+import com.seele0oO.jdbc.Dao.UserDaoImpl;
+import com.seele0oO.jdbc.model.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -227,17 +230,34 @@ public class RegFrm extends JFrame {
 				JOptionPane.showMessageDialog(null,"请重新输入验证码");
 			}
 
-//			if (check) {
-//				Boolean res = RegButton.reg(username,password,sex,phone);
-//				if (res) {
-//					JOptionPane.showMessageDialog(null,"注册成功");
-//				}else{
-//					JOptionPane.showMessageDialog(null,"注册失败,请联系数据库管理员");
-//				}
-//			}else{
-//				JOptionPane.showMessageDialog(null, "检查未通过");
-//			}
+			if (check) {
+				Boolean res = reg(username,password,sex,phone);//在下面
+				if (res) {
+					JOptionPane.showMessageDialog(null,"注册成功");
+				}else{
+					JOptionPane.showMessageDialog(null,"注册失败,请联系数据库管理员");
+				}
+			}else{
+				JOptionPane.showMessageDialog(null, "检查未通过");
+			}
 			// System.out.println(username);
+			}
+
+			private Boolean reg(String username, String password, String sex, String phone) {
+				UserDaoImpl sd = new UserDaoImpl();
+				Boolean rsr;
+				User newUser = new User();
+				newUser.setUsername(username);
+				newUser.setPassword(password);
+				newUser.setSex(sex);
+				newUser.setPhone(phone);
+				Integer row =  sd.addUser(newUser);
+				if (row ==1){
+					 rsr = true;
+				}else{
+					 rsr = false;
+				}
+				return rsr;
 			}
 		});
 		button.setFont(new Font("幼圆", Font.BOLD, 15));
@@ -269,6 +289,8 @@ public class RegFrm extends JFrame {
 		jf.setVisible(true);
 		jf.setResizable(true);
 	}
+
+
 
 	public static void main(String[] args) {
 		/*

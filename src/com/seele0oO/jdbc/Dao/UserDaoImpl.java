@@ -45,4 +45,58 @@ public class UserDaoImpl {
 		}
 		return list;
 	}
+
+	public User findByname (String username){
+		Connection conn = null;
+		// Statement st=null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		User oldUser = new User();
+		try {
+			conn = JDBCUtils.getConn();
+//            st= conn.createStatement();
+			String sql = "select * from user where username = ?";
+			ps = conn.prepareStatement(sql);
+			ps.setString(1,username);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				oldUser.setId(rs.getInt("id"));
+				oldUser.setUsername(rs.getString("username"));
+				oldUser.setPassword(rs.getString("password"));
+				oldUser.setRole(rs.getInt("role"));
+				oldUser.setSex(rs.getString("sex"));
+				oldUser.setPhone(rs.getString("phone"));
+			}
+
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+			return oldUser;
+	}
+	public Integer addUser (User newUser){
+		Connection conn = null;
+		// Statement st=null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		Integer row = 0;
+		User oldUser = new User();
+		conn = JDBCUtils.getConn();
+//            st= conn.createStatement();
+		String sql = "INSERT INTO user(username,password,sex,phone) VALUES (?,?,?,?)";
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setString(1,newUser.getUsername());
+			ps.setString(2,newUser.getPassword());
+			ps.setString(3,newUser.getSex());
+			ps.setString(4,newUser.getPhone());
+			row = ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return row;
+	}
 }
