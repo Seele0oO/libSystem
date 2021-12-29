@@ -1,5 +1,12 @@
 package com.seele0oO.JFrame;
 
+import com.seele0oO.jdbc.Dao.BookDaoImpl;
+import com.seele0oO.jdbc.Dao.BorrowDetailDao;
+import com.seele0oO.jdbc.Dao.BorrowDetailDaoImpl;
+import com.seele0oO.jdbc.Dao.UserDaoImpl;
+import com.seele0oO.jdbc.model.Book;
+import com.seele0oO.jdbc.model.User;
+import com.seele0oO.jdbc.model.borrowDetail;
 import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
 
 import javax.swing.*;
@@ -10,6 +17,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+import static com.seele0oO.JFrame.LoginFrm.currentUser;
 
 
 public class UserMenuFrm extends JFrame {
@@ -46,13 +58,68 @@ public class UserMenuFrm extends JFrame {
 		// 做一个表头栏数据 一维数组
 		String[] title = { "编号", "书名", "状态", "借书时间", "还书时间" };
 		// 具体的各栏行记录 先用空的二位数组占位
-		String[][] dates = {};
-		// 然后实例化 上面2个控件对象
-		model = new DefaultTableModel(dates, title);
-		table = new JTable();
-		table.setModel(model);
+
+		BorrowDetailDaoImpl sd = new BorrowDetailDaoImpl();
+		ArrayList<borrowDetail> bwlist;
+//没有userid！！！！！
+		bwlist = sd.getBorrowDetailList(currentUser.getId());
+
+		String[][] dataArr = new String[bwlist.size()][];
+
+
 
 		// 获取当前登录用户借阅数据记录--------------------------------待实现
+//		UserDaoImpl sd = new UserDaoImpl();
+//		User getuser = sd.findByname(username);
+
+
+//		System.out.println(bwlist);
+		System.out.println("---------------------------");
+		for (int i = 0; i < bwlist.size(); i++) {
+//			System.out.println(bwlist.get(i));
+			dataArr[i] = new String[5];
+			dataArr[i][0] = String.valueOf(bwlist.get(i).getId());
+			dataArr[i][1] = String.valueOf(bwlist.get(i).getBookId());
+			Integer status = bwlist.get(i).getStatus();
+			dataArr[i][2] = status == 1 ? "在借" : "已还";
+	 		if(status == 1){
+				dataArr[i][2] ="在借";
+			}else if(status == 2){
+				dataArr[i][2] ="已还";
+			}
+			Long borrowTime = bwlist.get(i).getBorrowTime();
+			Long returnTime = bwlist.get(i).getReturnTime();
+			dataArr[i][3]=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(borrowTime));
+			dataArr[i][4]=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(returnTime));
+		}
+		// 然后实例化 上面2个控件对象
+		model = new DefaultTableModel(dataArr, title);
+		table = new JTable();
+		table.setModel(model);
+/*
+		for (int i = 0; i < bwlist.size(); i++) {
+			Integer id =bwlist.get(i).getId();
+			Integer userId = bwlist.get(i).getUserId();
+			Integer bookId = bwlist.get(i).getBookId();
+			Integer status = bwlist.get(i).getStatus();
+			Long borrowTime = bwlist.get(i).getBorrowTime();
+			Long returnTime = bwlist.get(i).getReturnTime();
+//			System.out.println(id);
+			dates[i][0] = String.valueOf(id);
+			dates[i][1] = String.valueOf(userId);
+			dates[i][2] = String.valueOf(bookId);
+//			状态  1在借2已还
+			if(status == 1){
+				dates[i][3] ="在借";
+			}else if(status == 2){
+				dates[i][3] ="已还";
+			}
+			dates[i][4]=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(borrowTime));
+			dates[i][5]=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(returnTime));
+		}
+
+ */
+
 
 		// 表格添加到滚动面板中，滚动面板添加到panel_1中，panel_1添加到jf中
 		panel_1.setLayout(null);
@@ -67,7 +134,7 @@ public class UserMenuFrm extends JFrame {
 		lblNewLabel_1.setFont(new Font("Dialog", Font.BOLD, 18));
 		lblNewLabel_1.setBounds(315, 10, 197, 28);
 //		User currentUser = LoginAdjust.currentUser;
-//		lblNewLabel_1.setText(currentUser.getUsername());
+		lblNewLabel_1.setText(currentUser.getUsername());
 
 		jf.getContentPane().add(lblNewLabel_1);
 
@@ -115,11 +182,7 @@ public class UserMenuFrm extends JFrame {
 		panel_2.add(textField_1);
 		// 查询按钮
 		button_1 = new JButton("查询");
-		button_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { // 查询按钮单击事件----------------待实现
 
-			}
-		});
 		button_1.setFont(new Font("幼圆", Font.BOLD, 16));
 		button_1.setBounds(408, 20, 93, 33);
 		panel_2.add(button_1);
@@ -133,9 +196,45 @@ public class UserMenuFrm extends JFrame {
 		// 图书信息对应的表头
 		String[] BookTitle = { "编号", "书名", "类型", "作者", "描述" };
 		// 具体的各栏行记录 先用空的二位数组占位
-		String[][] BookDates = {};
+//		String[][] booklistArr = {};
+		String[][] booklistArr = new String[0][];
+//		String[][] booklistArr = new String[5][];
 		// 然后实例化 上面2个控件对象
-		bookModel = new DefaultTableModel(BookDates, BookTitle);
+
+		button_1.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) { // 查询按钮单击事件----------------待实现
+				//1:书籍名称
+				//2.书籍作者
+				String keyword = textField_1.getText();
+				Integer choice = comboBox.getSelectedIndex();
+				BookDaoImpl sd = new BookDaoImpl();
+				ArrayList<Book> booklist;
+				if(choice==1){
+					booklist = sd.listByBookname("%"+keyword+"%");
+				}else{
+					booklist = sd.listByBookname("%"+keyword+"%");
+				}
+
+				System.out.println(booklist);
+				String[][] booklistArr = new String[booklist.size()][];
+				for (int i = 0; i < booklist.size(); i++) {
+					booklistArr[i]=new String[5];
+					booklistArr[i][0]=String.valueOf(booklist.get(i).getId());
+					booklistArr[i][1]=String.valueOf(booklist.get(i).getBookName());
+					booklistArr[i][2]=String.valueOf(booklist.get(i).getTypeId());
+					booklistArr[i][3]=String.valueOf(booklist.get(i).getAuthor());
+					booklistArr[i][4]=String.valueOf(booklist.get(i).getRemark());
+//					System.out.println(booklistArr[i]);
+				}
+				System.out.println(booklistArr);
+
+
+//				BookDates = booklistArr;
+			}
+		});
+
+		bookModel = new DefaultTableModel(booklistArr, BookTitle);
 		bookTable = new JTable(bookModel);
 		// 获取所有图书信息--------------------------------待实现
 		panel_2.setLayout(null);
@@ -213,12 +312,12 @@ public class UserMenuFrm extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		try {
-			BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.generalNoTranslucencyShadow;
-			org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.generalNoTranslucencyShadow;
+//			org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		new UserMenuFrm();
 	}
 }

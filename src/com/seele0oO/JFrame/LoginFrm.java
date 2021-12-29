@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
 
 
 public class LoginFrm extends JFrame {
-//	public static User currentUser; // 当前登录用户
+	public static User currentUser; // 当前登录用户
 	private JFrame jf; // 登录窗体
 	private JTextField userNameText; // 用户名文本框
 	private JTextField passwordText; // 密码文本框
@@ -83,6 +83,7 @@ public class LoginFrm extends JFrame {
 					} else {
 						if (getuser.getPassword().equals(password)) {
 							loginstatus = 0;
+							currentUser = getuser;
 							if (getuser.getRole() == 1) {
 								isAdmin = false;//user
 							} else if (getuser.getRole() == 2) {
