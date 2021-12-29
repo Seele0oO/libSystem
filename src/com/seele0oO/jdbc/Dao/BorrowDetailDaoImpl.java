@@ -1,7 +1,7 @@
 package com.seele0oO.jdbc.Dao;
 
+import com.seele0oO.jdbc.Unit.DBInJ;
 import com.seele0oO.jdbc.Unit.JDBCUtils;
-import com.seele0oO.jdbc.model.User;
 import com.seele0oO.jdbc.model.borrowDetail;
 
 import java.sql.Connection;
@@ -52,4 +52,18 @@ public class BorrowDetailDaoImpl {
 		}
 		return list;
 	}
+	public Integer updateBorrowDetail(Integer id,Integer status){
+		Long returnTime = System.currentTimeMillis();
+		int i = DBInJ.fastPreparedExecuteUpdate
+				("UPDATE borrowdetail SET status  = ?,return_time = ? WHERE id = ?", status,returnTime,id);
+		return i;
+	}
+	public boolean addBorrowDetail(borrowDetail nbw){
+		boolean b = DBInJ.fastPreparedExecute
+				("INSERT INTO borrowdetail (user_id,book_id,status,borrow_time) " +
+								"VALUES(?,?,?,?)", nbw.getUserId(), nbw.getBookId(), nbw.getStatus(),
+						nbw.getBorrowTime());
+		return b;
+	}
 }
+

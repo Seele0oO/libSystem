@@ -6,4 +6,6 @@ import java.util.ArrayList;
 
 public interface BorrowDetailDao {
 	ArrayList<borrowDetail> getBorrowDetailList();
+	Integer updateBorrowDetail(Integer id,Integer status);
+	Boolean addBorrowDetail(borrowDetail nbw);
 }

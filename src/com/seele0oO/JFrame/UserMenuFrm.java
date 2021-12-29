@@ -2,6 +2,7 @@ package com.seele0oO.JFrame;
 
 import com.seele0oO.jdbc.Dao.BookDao;
 import com.seele0oO.jdbc.Dao.BorrowDetailDaoImpl;
+import com.seele0oO.jdbc.Dao.UserDaoImpl;
 import com.seele0oO.jdbc.Unit.DBInJ;
 import com.seele0oO.jdbc.Unit.JDBCUtils;
 import com.seele0oO.jdbc.model.Book;
@@ -23,7 +24,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
 import static com.seele0oO.JFrame.LoginFrm.currentUser;
@@ -33,7 +33,7 @@ public class UserMenuFrm extends JFrame {
 	private JFrame jf; // 用户窗体界面
 	private JLabel lblNewLabel_1; // 当前登录用户名
 	private JLabel lblNewLabel_2; // 欢迎您
-	private JTable table; // 借阅信息表格组件
+	private JTable borrowTable; // 借阅信息表格组件
 	private DefaultTableModel model; // 借阅信息表格组件所需要的数据模型
 	private JTextField textField; // 还书编号
 	private JButton btnBackBook; // 还书按钮
@@ -44,10 +44,11 @@ public class UserMenuFrm extends JFrame {
 	private JButton button_1; // 查询按钮
 	private JTable bookTable; // 展示图书信息表格组件
 	private DefaultTableModel bookModel; // 展示图书信息表格组件所需要的数据模型
-	private JTextField textField_2; // 借书编号文本框
-	private JTextField textField_3; // 借书书名文本框
+	//	private JTextField textField_2; // 借书编号文本框
+//	private JTextField textField_3; // 借书书名文本框
 	private JLabel lblNewLabel_3; // 窗体背景图片
 
+	private Integer selectRow;//选中行
 	public UserMenuFrm() {
 		jf = new JFrame();
 		jf.setTitle("用户页面");
@@ -89,18 +90,20 @@ public class UserMenuFrm extends JFrame {
 			dataArr[i][2] = status == 1 ? "在借" : "已还";
 	 		if(status == 1){
 				dataArr[i][2] ="在借";
-			}else if(status == 2){
-				dataArr[i][2] ="已还";
-			}
+		    } else if (status == 2) {
+			    dataArr[i][2] = "已还";
+		    }
 			Long borrowTime = bwlist.get(i).getBorrowTime();
 			Long returnTime = bwlist.get(i).getReturnTime();
-			dataArr[i][3]=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(borrowTime));
-			dataArr[i][4]=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(returnTime));
+			dataArr[i][3] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(borrowTime));
+			dataArr[i][4] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(returnTime));
 		}
 		// 然后实例化 上面2个控件对象
 		model = new DefaultTableModel(dataArr, title);
-		table = new JTable();
-		table.setModel(model);
+		borrowTable = new JTable();
+		borrowTable.setModel(model);
+
+
 /*
 		for (int i = 0; i < bwlist.size(); i++) {
 			Integer id =bwlist.get(i).getId();
@@ -130,7 +133,7 @@ public class UserMenuFrm extends JFrame {
 		panel_1.setLayout(null);
 		JScrollPane jscrollpane = new JScrollPane();
 		jscrollpane.setBounds(20, 22, 607, 188);
-		jscrollpane.setViewportView(table);
+		jscrollpane.setViewportView(borrowTable);
 		panel_1.add(jscrollpane);
 		jf.getContentPane().add(panel_1);
 
@@ -243,7 +246,7 @@ public class UserMenuFrm extends JFrame {
 		jscrollpane1.setViewportView(bookTable);
 		panel_2.add(jscrollpane1);
 		jf.getContentPane().add(panel_1);
-		// 借书面板
+/*		// 借书面板
 		JPanel panel_3 = new JPanel();
 		panel_3.setBorder(new TitledBorder(null, "借书", TitledBorder.LEADING, TitledBorder.TOP, null, Color.RED));
 		panel_3.setBounds(23, 730, 645, 87);
@@ -280,32 +283,80 @@ public class UserMenuFrm extends JFrame {
 		});
 		button_2.setFont(new Font("Dialog", Font.BOLD, 16));
 		button_2.setBounds(495, 31, 80, 33);
-		panel_3.add(button_2);
+		panel_3.add(button_2);*/
 		// 窗体背景图片
 		lblNewLabel_3 = new JLabel("");
 		lblNewLabel_3.setIcon(new ImageIcon(UserMenuFrm.class.getResource("/tupian/uBG.png")));
 		lblNewLabel_3.setBounds(0, 0, 684, 864);
 		jf.getContentPane().add(lblNewLabel_3);
+
+		btnBackBook.setVisible(false); // 隐藏还书按钮
+
+
+
 		// 借书表格添加鼠标事件监听器
 		bookTable.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent evt) { // 鼠标按下事件--------------待实现
-					
+				selectRow = bookTable.getSelectedRow();
+				System.out.println(selectRow);
+				borrowTable.clearSelection();
+				if (selectRow != -1) {
+					btnBackBook.setVisible(true);
+					btnBackBook.setText("借书！");
+				}
 			}
 		});
+
 		// 退出按钮添加动作监听器
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { // 退出按钮单击事件-------------待实现
 
+				selectRow = borrowTable.getSelectedRow();
+				System.out.println(selectRow);
 			}
 		});
-		btnBackBook.setVisible(false); // 隐藏还书按钮
+
+/*		btnBackBook.setText("借书");
+		btnBackBook.setText("还书");*/
 		// 还书按钮添加动作监听器
 		btnBackBook.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { // 还书按钮单击事件-------------待实现
-
+				if(btnBackBook.getText().equals("还书！")){
+					System.out.println("还书按钮");
+					Integer borrowDetailId =Integer.valueOf((String) borrowTable.getModel().getValueAt(selectRow,0));
+					System.out.println(borrowDetailId);
+					BorrowDetailDaoImpl sd = new BorrowDetailDaoImpl();
+//					User getuser = sd.findByname(username);
+					int row = sd.updateBorrowDetail(borrowDetailId,2);
+					//还书完成
+				}else if(btnBackBook.getText().equals("借书！")){
+					System.out.println("借书按钮");
+					Integer bookId = (Integer) bookTable.getModel().getValueAt(selectRow,0);
+					System.out.println(bookId);
+					borrowDetail nbw = new borrowDetail();
+					nbw.setUserId(currentUser.getId());
+					nbw.setBookId(bookId);
+					nbw.setStatus(1);
+					nbw.setBorrowTime(System.currentTimeMillis());
+					BorrowDetailDaoImpl sd = new BorrowDetailDaoImpl();
+					Boolean rb = sd.addBorrowDetail(nbw);
+				}
 			}
 		});
 
+		borrowTable.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent evt) {
+				selectRow = borrowTable.getSelectedRow();
+				System.out.println(selectRow);
+				bookTable.clearSelection();
+				if (selectRow != -1 && borrowTable.getModel().getValueAt(selectRow, 2).equals("在借")) {
+					btnBackBook.setVisible(true);
+					btnBackBook.setText("还书！");
+				}else{
+					btnBackBook.setVisible(false);
+				}
+			}
+		});
 		// 显示窗体，大小不可改变
 		jf.setVisible(true);
 		jf.setResizable(true);

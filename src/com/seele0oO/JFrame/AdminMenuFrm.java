@@ -154,12 +154,12 @@ public class AdminMenuFrm extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		try {
+/*		try {
 			BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.generalNoTranslucencyShadow;
 			org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		new AdminMenuFrm();
 	}
 }
