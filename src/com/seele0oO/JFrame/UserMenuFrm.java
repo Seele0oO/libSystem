@@ -416,8 +416,8 @@ public class UserMenuFrm extends JFrame {
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
-		LoginFrm.currentUser = new User();
-		LoginFrm.currentUser.setId(1);
+//		LoginFrm.currentUser = new User();
+//		LoginFrm.currentUser.setId(1);
 		new UserMenuFrm();
 	}
 }

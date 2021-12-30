@@ -1,10 +1,6 @@
 package com.seele0oO.JFrame;
 
-import com.seele0oO.jdbc.Dao.BookDaoImpl;
-import com.seele0oO.jdbc.Dao.UserDaoImpl;
 import com.seele0oO.jdbc.Unit.DBInJ;
-import com.seele0oO.jdbc.model.Book;
-import com.seele0oO.jdbc.model.User;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -92,11 +88,19 @@ public class AdminBorrowInfo extends JFrame {
 
 		JMenu mnNewMenu_1 = new JMenu("退出系统");
 		mnNewMenu_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//退出系统事件-----------------------待实现
+			public void mousePressed(MouseEvent evt) {        //退出系统事件-----------------------待实现
 				System.exit(0);
 			}
 		});
 		menuBar.add(mnNewMenu_1);
+
+		String[] title = {"借书人", "书名", "状态", "借书时间", "还书时间"};
+		/* 具体的各栏行记录 先用空的二位数组占位 */
+		String[][] dates = {};
+		/* 然后实例化 上面2个控件对象 */
+		model = new DefaultTableModel(dates, title);
+		table = new JTable(model);
+
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "借阅信息", TitledBorder.LEADING,
@@ -104,23 +108,60 @@ public class AdminBorrowInfo extends JFrame {
 		panel_1.setBounds(10, 10, 574, 350);
 
 
-		DBInJ.fastPreparedExecuteQuery("SELECT * FROM borrowdetail ", (ResultSet resultSet) -> {
-					initializeBorrowDetailTableData(resultSet);
-					return null;
-				}
-		);
+		String sql = "SELECT\n" +
+				"\tborrowdetail.*,\n" +
+				"\tUSER.id uid,\n" +
+				"\tUSER.username,\n" +
+				"\tbook.id bid,\n" +
+				"\tbook.book_name \n" +
+				"FROM\n" +
+				"\tborrowdetail,\n" +
+				"\tUSER,\n" +
+				"\tbook \n" +
+				"WHERE\n" +
+				"\tbook.id = borrowdetail.book_id \n" +
+				"\tAND USER.id = borrowdetail.user_id;";
+//		System.out.println(sql);
+		DBInJ.fastPreparedExecuteQuery(sql,(ResultSet resultSet) -> {
+			initializeBookTableData(resultSet);
+			return null;
+		});
+		/*public void actionPerformed(ActionEvent e) { // 查询按钮单击事件----------------待实现
+			//1:书籍名称
+			//2.书籍作者
+			DBInJ.fastPreparedExecuteQuery("SELECT book.*, book_type.type_name FROM book, book_type WHERE "
+					+ (comboBox.getSelectedIndex() == 0 ? "book_name" : "author")
+					+ " LIKE ? AND book.type_id = book_type.id", (ResultSet resultSet) -> {
+				initializeBookTableData(resultSet);
+				return null;
+			}, "%" + textField_1.getText() + "%");
+
+
+
+*//*				// 闭包 函数
+				Runnable z = () -> {
+					System.out.println("111");
+				};
+				Consumer<String> c = System.out::println;
+				c.accept("111");
+
+				Function<Integer, Integer> func = new Function<>() {
+					@Override
+					public Integer apply(Integer o) {
+						return o + 10;
+					}
+				};
+				func.apply(5);*//*
+
+		}
+*/
 
 
 
 		/*
 		 * 做一个表头栏数据 一位数组
 		 */
-		String[] title = {"借书人", "书名", "状态", "借书时间", "还书时间"};
-		/* 具体的各栏行记录 先用空的二位数组占位 */
-		String[][] dates = {};
-		/* 然后实例化 上面2个控件对象 */
-		model = new DefaultTableModel(dates, title);
-		table = new JTable(model);
+
 		// 获取数据库数据放置table中--------------------------------------待实现
 		panel_1.setLayout(null);
 		JScrollPane jscrollpane = new JScrollPane();
@@ -138,46 +179,24 @@ public class AdminBorrowInfo extends JFrame {
 		jf.setResizable(true);
 	}
 
-	private void initializeBorrowDetailTableData(ResultSet resultSet) {
+	private void initializeBookTableData(ResultSet resultSet) throws SQLException {
 		TableModel model = table.getModel();
-		if (model instanceof DefaultTableModel defaultTableModel) {
+		if (model instanceof DefaultTableModel defaultTableModel)
+		{
 			defaultTableModel.setRowCount(0);
-			while (true) {
-				try {
-					if (!resultSet.next()) break;
-					Vector<Object> rowData = new Vector<>();
-					UserDaoImpl sd = new UserDaoImpl();
-					User user = sd.findByUserID(resultSet.getInt("user_id"));
-
-					BookDaoImpl bd = new BookDaoImpl();
-					Book book = bd.findByBookId(resultSet.getInt("book_id"));
-
-
-					rowData.add(user.getUsername());
-					rowData.add(book.getBookName());
-
-//					DBInJ.fastPreparedExecute("SELECT status from borrowdetail where")
-					if (resultSet.getInt("status") == 1) {
-						rowData.add("在借");
-					} else {
-						rowData.add("已还");
-					}
-
-					String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(resultSet.getInt("borrow_time")));
-					rowData.add(date);
-
-					String returnDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(resultSet.getInt("return_time")));
-					rowData.add(returnDate);
-//					rowData.add(resultSet.getString("remark"));
-					defaultTableModel.addRow(rowData);
-					System.out.println(rowData);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-
+			while (resultSet.next())
+			{
+				Vector<Object> rowData = new Vector<>();
+				rowData.add(resultSet.getString("username"));
+				rowData.add(resultSet.getString("book_name"));
+				rowData.add(resultSet.getInt("status"));
+				rowData.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(resultSet.getLong("borrow_time"))));
+				rowData.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(resultSet.getLong("return_time"))));
+				defaultTableModel.addRow(rowData);
 			}
 		}
 	}
+
 
 	public static void main(String[] args) {
 /*		try {

@@ -1,7 +1,9 @@
 package com.seele0oO.JFrame;
 
+import com.seele0oO.jdbc.Dao.BookDaoImpl;
 import com.seele0oO.jdbc.Dao.BookTypeDaoImpl;
 import com.seele0oO.jdbc.Unit.DBInJ;
+import com.seele0oO.jdbc.model.Book;
 import com.seele0oO.jdbc.model.bookType;
 
 import javax.swing.*;
@@ -199,8 +201,11 @@ public class AdminBookEdit extends JFrame {
 				textField_4.setText(String.valueOf(table.getModel().getValueAt(selectRow,3)));// 价格文本框
 				textField_5.setText(String.valueOf(table.getModel().getValueAt(selectRow,4)));// 出版社文本框
 				textField_6.setText(String.valueOf(table.getModel().getValueAt(selectRow,5)));// 库存文本框
-				textField_7.setText(String.valueOf(table.getModel().getValueAt(selectRow,6)));// 图书描述信息文本框
-
+//				textField_7.setText(String.valueOf(table.getModel().getValueAt(selectRow,6)));// 图书描述信息文本框
+				BookDaoImpl ps = new BookDaoImpl();
+				Book book = ps.findByBookId((Integer) table.getModel().getValueAt(selectRow, 0));
+				book.toString();
+				textField_7.setText(book.getRemark());//从数据库获取描述
 
 				BookTypeDaoImpl bt = new BookTypeDaoImpl();
 				ArrayList<bookType> allBookTypes = bt.findAllBookTypes();
@@ -306,14 +311,35 @@ public class AdminBookEdit extends JFrame {
 
 		comboBox_2 = new JComboBox();
 		comboBox_2.setBounds(338, 191, 128, 26);
-		comboBox_2.addItem("上架");
 		comboBox_2.addItem("下架");
+		comboBox_2.addItem("上架");
 		panel_2.add(comboBox_2);
 
 		JButton btnNewButton_1 = new JButton("修改");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { // 修改按钮单击事件-------------------待实现
+				Integer id = Integer.valueOf(textField_1.getText());// 编号文本框
+				String bookName = textField_2.getText();// 书名文本框
+				String author = textField_3.getText();// 作者文本框
+				Double price = Double.valueOf(textField_4.getText());// 价格文本框
+				String publish = textField_5.getText();// 出版社文本框
+				Integer number = Integer.valueOf(textField_6.getText());// 库存文本框
+				String remark = textField_7.getText();// 图书描述信息文本框
+				Integer status = comboBox_2.getSelectedIndex();
+				Integer typeId=comboBox_1.getSelectedIndex();
+				try {
 
+					boolean b = DBInJ.fastPreparedExecute("UPDATE book SET " +
+							"id=?,book_name=?,type_id=?,author=?,publish=?" +
+							",price=?,number=?,status=?,remark=?", id, bookName, typeId, author, publish, price, number, status, remark);
+					if(b){
+						JOptionPane.showMessageDialog(null, "修改成功");
+					}
+				}catch (Exception ed) {
+					ed.printStackTrace();
+				}
+//				private JComboBox comboBox_2;// 上下架状态组合框
+//				private JComboBox comboBox_1;// 图书类别组合框
 			}
 		});
 		btnNewButton_1.setFont(new Font("幼圆", Font.BOLD, 14));
