@@ -1,13 +1,23 @@
 package com.seele0oO.JFrame;
 
+import com.seele0oO.jdbc.Dao.BookTypeDaoImpl;
+import com.seele0oO.jdbc.Unit.DBInJ;
+import com.seele0oO.jdbc.model.bookType;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Vector;
+
 public class AdminBookEdit extends JFrame {
 	private JFrame jf;// 书籍修改窗体
 	private JTextField textField;// 查询文本框
@@ -24,6 +34,7 @@ public class AdminBookEdit extends JFrame {
 	private JComboBox comboBox_2;// 上下架状态组合框
 	private JComboBox comboBox_1;// 图书类别组合框
 
+	private Integer selectRow;
 	public AdminBookEdit() {
 		jf = new JFrame("管理员界面");
 		jf.setBounds(400, 50, 600, 672);
@@ -120,7 +131,33 @@ public class AdminBookEdit extends JFrame {
 		JButton btnNewButton = new JButton("查询");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { // 查询按钮单击事件-------------------待实现
+				DBInJ.fastPreparedExecuteQuery("SELECT book.*, book_type.type_name FROM book, book_type WHERE "
+						+ (comboBox.getSelectedIndex() == 0 ? "book_name" : "author")
+						+ " LIKE ? AND book.type_id = book_type.id", (ResultSet resultSet) -> {
+					initializeBookTableData(resultSet);
+					return null;
+				}, "%" + textField.getText() + "%");
+			}
 
+			private void initializeBookTableData(ResultSet resultSet) throws SQLException {
+				TableModel model = table.getModel();
+				if (model instanceof DefaultTableModel defaultTableModel)
+				{
+					defaultTableModel.setRowCount(0);
+					while (resultSet.next())
+					{
+						Vector<Object> rowData = new Vector<>();
+						rowData.add(resultSet.getInt("id"));
+						rowData.add(resultSet.getString("book_name"));
+						rowData.add(resultSet.getString("type_name"));
+						rowData.add(resultSet.getString("author"));
+						rowData.add(resultSet.getDouble("price"));
+						rowData.add(resultSet.getInt("number"));
+						rowData.add(resultSet.getInt("status"));
+//						rowData.add(resultSet.getString("remark"));
+						defaultTableModel.addRow(rowData);
+					}
+				}
 			}
 		});
 		btnNewButton.setFont(new Font("幼圆", Font.BOLD, 14));
@@ -153,7 +190,27 @@ public class AdminBookEdit extends JFrame {
 
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent evt) { // 表格鼠标事件---------------------待实现
+//				selectRow = (Integer)table.getSelectedRow();
+				selectRow = Integer.valueOf(table.getSelectedRow());
+				System.out.println(selectRow);
+				textField_1.setText(String.valueOf(table.getModel().getValueAt(selectRow,0)));// 编号文本框
+				textField_2.setText(String.valueOf(table.getModel().getValueAt(selectRow,1)));// 书名文本框
+				textField_3.setText(String.valueOf(table.getModel().getValueAt(selectRow,2)));// 作者文本框
+				textField_4.setText(String.valueOf(table.getModel().getValueAt(selectRow,3)));// 价格文本框
+				textField_5.setText(String.valueOf(table.getModel().getValueAt(selectRow,4)));// 出版社文本框
+				textField_6.setText(String.valueOf(table.getModel().getValueAt(selectRow,5)));// 库存文本框
+				textField_7.setText(String.valueOf(table.getModel().getValueAt(selectRow,6)));// 图书描述信息文本框
 
+
+				BookTypeDaoImpl bt = new BookTypeDaoImpl();
+				ArrayList<bookType> allBookTypes = bt.findAllBookTypes();
+				for (int i = 0; i < allBookTypes.size(); i++) {
+					String typeName = allBookTypes.get(i).getTypeName();
+					comboBox_1.addItem(typeName);
+				}
+				JComboBox comboBox;// 查询组合框
+				JComboBox comboBox_2;// 上下架状态组合框
+				JComboBox comboBox_1;// 图书类别组合框
 			}
 		});
 
