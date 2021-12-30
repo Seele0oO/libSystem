@@ -1,15 +1,23 @@
 package com.seele0oO.JFrame;
 
-import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
+import com.seele0oO.jdbc.Unit.DBInJ;
+import com.seele0oO.jdbc.model.User;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Vector;
+
+import static com.seele0oO.jdbc.Unit.DBInJ.user;
+
 public class AdminUserInfo extends JFrame {
 	private JFrame jf;// 用户信息窗体
 	private JTextField textField;// 查询文本框
@@ -21,6 +29,7 @@ public class AdminUserInfo extends JFrame {
 	private JTextField textField_4;// 性别文本框
 	private JTextField textField_5;// 手机号文本框
 
+	private Integer selectRow;//表格中选中序列号，0
 	public AdminUserInfo() {
 		jf = new JFrame("管理员界面");
 		jf.setBounds(400, 100, 600, 516);
@@ -37,14 +46,14 @@ public class AdminUserInfo extends JFrame {
 		mntmNewMenuItem.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent evt) { // 类别添加事件---
 				jf.dispose();
-				new AdminBTypeEdit();
+				new AdminMenuFrm();
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem);
 
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("类别修改");
 		mntmNewMenuItem_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 类别修改事件--------------------//太怪了
+			public void mousePressed(MouseEvent evt) { // 类别修改事件-----------------
 				jf.dispose();
 				new AdminBTypeEdit();
 			}
@@ -56,16 +65,18 @@ public class AdminUserInfo extends JFrame {
 
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("书籍添加");
 		mntmNewMenuItem_2.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 书籍添加事件---------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 书籍添加事件-----------------------
+				jf.dispose();
+				new AdminBookAdd();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_2);
 
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("书籍修改");
 		mntmNewMenuItem_3.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 书籍修改事件---------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 书籍修改事件-------------------------
+				jf.dispose();
+				new AdminBookEdit();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_3);
@@ -78,16 +89,17 @@ public class AdminUserInfo extends JFrame {
 
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("借阅信息");
 		mntmNewMenuItem_5.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 借阅信息事件---------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 借阅信息事件-------------------------
+				jf.dispose();
+				new AdminBorrowInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_5);
 
 		JMenu mnNewMenu_1 = new JMenu("退出系统");
 		mnNewMenu_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 退出系统事件---------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 退出系统事件---------------------------
+				System.exit(0);
 			}
 		});
 		menuBar.add(mnNewMenu_1);
@@ -110,8 +122,42 @@ public class AdminUserInfo extends JFrame {
 
 		JButton btnNewButton = new JButton("查询");
 		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {	//查询单击事件---------------------------待实现
-				
+			public void actionPerformed(ActionEvent e) {    //查询单击事件--------------------------
+				String username = textField.getText();
+				System.out.println(username);
+//				DBInJ.IGenericAdvancedRunnable<ResultSet, ?> ResultSet = null;
+				DBInJ.fastPreparedExecuteQuery("SELECT * FROM user WHERE username like ?", (ResultSet resultSet) -> {
+							initializeUserTableData(resultSet);
+							return null;
+						}
+						, '%' + username + '%');
+//				UserDaoImpl sd = new UserDaoImpl();
+//				User byname = sd.findByname('%'+username+'%');
+//				byname.toString();
+			}
+
+			private void initializeUserTableData(ResultSet resultSet) {
+				TableModel model = table.getModel();
+				if (model instanceof DefaultTableModel defaultTableModel) {
+					defaultTableModel.setRowCount(0);
+					while (true) {
+						try {
+							if (!resultSet.next()) break;
+							Vector<Object> rowData = new Vector<>();
+							rowData.add(resultSet.getInt("id"));
+							rowData.add(resultSet.getString("username"));
+							rowData.add(resultSet.getString("password"));
+//							rowData.add(resultSet.getInt("role"));
+							rowData.add(resultSet.getString("sex"));
+							rowData.add(resultSet.getString("phone"));
+							defaultTableModel.addRow(rowData);
+							System.out.println(rowData);
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+
+					}
+				}
 			}
 		});
 		btnNewButton.setFont(new Font("幼圆", Font.BOLD, 14));
@@ -181,8 +227,24 @@ public class AdminUserInfo extends JFrame {
 
 		JButton btnNewButton_1 = new JButton("修改");
 		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {		////修改按钮单击事件---------------------------待实现
-				
+			public void actionPerformed(ActionEvent e) {		////修改按钮单击事件---------------------------
+
+				System.out.println("选中了："+selectRow);
+				Integer userid = (Integer) table.getModel().getValueAt(selectRow,0);
+				System.out.println("userID = "+userid);
+				User updateUser = new User();
+				updateUser.setId(Integer.valueOf(textField_1.getText()));
+				updateUser.setUsername(textField_2.getText());
+				updateUser.setPassword(textField_3.getText());
+				updateUser.setSex(textField_4.getText());
+				updateUser.setPhone(textField_5.getText());
+				int i = DBInJ.fastPreparedExecuteUpdate("UPDATE user SET username = " +
+								"? ,password = ?,sex = ?,phone = ? WHERE id = ?", textField_2.getText(),
+						textField_3.getText(), textField_4.getText(), textField_5.getText(),Integer.
+								valueOf(textField_1.getText()));
+				if (i==1){
+					JOptionPane.showMessageDialog(null, "修改成功");
+				}
 			}
 		});
 		btnNewButton_1.setFont(new Font("幼圆", Font.BOLD, 15));
@@ -215,8 +277,18 @@ public class AdminUserInfo extends JFrame {
 		jf.getContentPane().add(lblNewLabel_2);
 
 		table.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//表格鼠标事件-------------------------待实现
-				
+			public void mousePressed(MouseEvent evt) {		//表格鼠标事件-----------------------
+				selectRow = table.getSelectedRow();
+				var inTableID  = table.getModel().getValueAt(selectRow,0);
+				var inTableUsername = table.getModel().getValueAt(selectRow,1);
+				var inTablePassword = table.getModel().getValueAt(selectRow,2);
+				var inTableSex = table.getModel().getValueAt(selectRow,3);
+				var inTablePhone = table.getModel().getValueAt(selectRow,4);
+				textField_1.setText(String.valueOf( inTableID));
+				textField_2.setText((String) inTableUsername);
+				textField_3.setText(String.valueOf( inTablePassword));
+				textField_4.setText(String.valueOf(inTableSex));
+				textField_5.setText(String.valueOf(inTablePhone) );
 			}
 		});
 

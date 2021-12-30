@@ -310,9 +310,9 @@ public class UserMenuFrm extends JFrame {
 		// 退出按钮添加动作监听器
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { // 退出按钮单击事件-------------待实现
-
-				selectRow = borrowTable.getSelectedRow();
-				System.out.println(selectRow);
+				System.exit(0);
+//				selectRow = borrowTable.getSelectedRow();
+//				System.out.println(selectRow);
 			}
 		});
 

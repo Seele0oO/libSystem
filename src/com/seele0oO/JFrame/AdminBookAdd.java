@@ -2,6 +2,11 @@ package com.seele0oO.JFrame;
 
 
 //import dao.BookDao;
+import com.seele0oO.jdbc.Dao.BookTypeDao;
+import com.seele0oO.jdbc.Dao.BookTypeDaoImpl;
+import com.seele0oO.jdbc.Unit.DBInJ;
+import com.seele0oO.jdbc.model.Book;
+import com.seele0oO.jdbc.model.bookType;
 import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
 
 import javax.swing.*;
@@ -11,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 public class AdminBookAdd extends JFrame {
 	private JFrame jf;//图书添加窗体
@@ -99,11 +105,36 @@ public class AdminBookAdd extends JFrame {
 		textField_6.setColumns(10);
 		textField_6.setBounds(101, 173, 365, 27);
 		panel.add(textField_6);
-		
+
+		comboBox = new JComboBox();
+		comboBox.setBounds(338, 126, 128, 26);
+
+		BookTypeDaoImpl bt = new BookTypeDaoImpl();
+		ArrayList<bookType> allBookTypes = bt.findAllBookTypes();
+		for (int i = 0; i < allBookTypes.size(); i++) {
+			String typeName = allBookTypes.get(i).getTypeName();
+			comboBox.addItem(typeName);
+		}
+
 		JButton btnNewButton = new JButton("添加");
 		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {	//添加按钮单击事件-------------------------待实现
-			
+			public void actionPerformed(ActionEvent e) {	//添加按钮单击事件------------------
+				String bookName = textField.getText();
+				String author = textField_1.getText();
+				String published = textField_2.getText();
+				String number = textField_3.getText();
+				Double price = Double.parseDouble(textField_4.getText());
+				String remark = textField_6.getText();
+
+				int selectedIndex = comboBox.getSelectedIndex();//0
+				bookType bookType = allBookTypes.get(selectedIndex);
+				Integer typeId = bookType.getId();
+
+/*
+				comboBox.getSelectedIndex();*/
+			Book newbbook = new Book();
+				DBInJ.fastPreparedExecute("INSERT INTO book(book_name,author,publish," +
+						"price,number,type_id,remark) VALUES(?,?,?,?,?,?,?)",bookName,author,published,price,number,typeId,remark);
 			}
 		});
 		btnNewButton.setFont(new Font("幼圆", Font.BOLD, 14));
@@ -112,16 +143,25 @@ public class AdminBookAdd extends JFrame {
 		
 		JButton button = new JButton("重置");
 		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {	//重置按钮单击事件-------------------------待实现
-				
+			public void actionPerformed(ActionEvent e) {	//重置按钮单击事件---------------------
+				textField.setText("");//书名文本框
+				textField_1.setText("");//作者文本框
+				textField_2.setText("");//出版社文本框
+				textField_3.setText("");//库存文本框
+				textField_4.setText("");//价格文本框
+				textField_6.setText("");//描述数据文本框
 			}
 		});
 		button.setFont(new Font("幼圆", Font.BOLD, 14));
 		button.setBounds(329, 229, 77, 27);
 		panel.add(button);
 		
-		comboBox = new JComboBox();
-		comboBox.setBounds(338, 126, 128, 26);
+
+//		DBInJ.fastPreparedExecuteQuery()
+//		comboBox.addItem();
+
+
+
 		panel.add(comboBox);
 		
 		JLabel lblNewLabel_1 = new JLabel("");
@@ -138,16 +178,18 @@ public class AdminBookAdd extends JFrame {
 		
 		JMenuItem mntmNewMenuItem = new JMenuItem("类别添加");
 		mntmNewMenuItem.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//类别添加事件-----------------待实现
-				
+			public void mousePressed(MouseEvent evt) {		//类别添加事件---------------
+				jf.dispose();
+				new AdminMenuFrm();
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem);
 		
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("类别修改");
 		mntmNewMenuItem_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//类别修改事件-----------------待实现
-		
+			public void mousePressed(MouseEvent evt) {		//类别修改事件-------------
+		jf.dispose();
+		new AdminBTypeEdit();
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem_1);
@@ -160,8 +202,9 @@ public class AdminBookAdd extends JFrame {
 		
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("书籍修改");
 		mntmNewMenuItem_3.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//书籍修改事件-----------------待实现
-				
+			public void mousePressed(MouseEvent evt) {		//书籍修改事件----------
+				jf.dispose();
+				new AdminBookEdit();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_3);
@@ -171,24 +214,26 @@ public class AdminBookAdd extends JFrame {
 		
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("用户信息");
 		mntmNewMenuItem_4.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//用户信息事件-----------------待实现
-				
+			public void mousePressed(MouseEvent evt) {		//用户信息事件----------------
+				jf.dispose();
+				new AdminUserInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_4);
 		
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("借阅信息");
 		mntmNewMenuItem_5.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//借阅信息事件-----------------待实现
-				
+			public void mousePressed(MouseEvent evt) {		//借阅信息事件-----------------
+				jf.dispose();
+				new AdminBorrowInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_5);
 		
 		JMenu mnNewMenu_1 = new JMenu("退出系统");
 		mnNewMenu_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {		//退出系统事件-----------------待实现
-				
+			public void mousePressed(MouseEvent evt) {		//退出系统事件----------------
+				System.exit(0);
 			}
 		});
 		menuBar.add(mnNewMenu_1);

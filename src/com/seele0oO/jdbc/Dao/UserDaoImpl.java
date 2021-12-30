@@ -55,7 +55,7 @@ public class UserDaoImpl {
 		try {
 			conn = JDBCUtils.getConn();
 //            st= conn.createStatement();
-			String sql = "select * from user where username = ?";
+			String sql = "select * from user where username like ?";
 			ps = conn.prepareStatement(sql);
 			ps.setString(1,username);
 			rs = ps.executeQuery();
@@ -76,6 +76,36 @@ public class UserDaoImpl {
 		}
 
 			return oldUser;
+	}
+	public User findByUserID (Integer userid){
+		Connection conn = null;
+		// Statement st=null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		User oldUser = new User();
+		try {
+			conn = JDBCUtils.getConn();
+//            st= conn.createStatement();
+			String sql = "select * from user where userid = ?";
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1,userid);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				oldUser.setId(rs.getInt("id"));
+				oldUser.setUsername(rs.getString("username"));
+				oldUser.setPassword(rs.getString("password"));
+				oldUser.setRole(rs.getInt("role"));
+				oldUser.setSex(rs.getString("sex"));
+				oldUser.setPhone(rs.getString("phone"));
+			}
+
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return oldUser;
 	}
 	public Integer addUser (User newUser){
 		Connection conn = null;

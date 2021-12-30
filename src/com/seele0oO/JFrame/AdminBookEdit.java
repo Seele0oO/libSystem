@@ -1,29 +1,13 @@
 package com.seele0oO.JFrame;
 
-import java.awt.Color;
-import java.awt.Font;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-
-import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
 public class AdminBookEdit extends JFrame {
 	private JFrame jf;// 书籍修改窗体
 	private JTextField textField;// 查询文本框
@@ -53,16 +37,18 @@ public class AdminBookEdit extends JFrame {
 
 		JMenuItem mntmNewMenuItem = new JMenuItem("类别添加");
 		mntmNewMenuItem.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 类别添加事件------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 类别添加事件----------------------
+				jf.dispose();
+				new AdminMenuFrm();
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem);
 
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("类别修改");
 		mntmNewMenuItem_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 类别修改事件------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 类别修改事件---------------------
+				jf.dispose();
+				new AdminBTypeEdit();
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem_1);
@@ -72,8 +58,9 @@ public class AdminBookEdit extends JFrame {
 
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("书籍添加");
 		mntmNewMenuItem_2.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 书籍添加事件------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 书籍添加事件---------------------
+				jf.dispose();
+				new AdminBookAdd();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_2);
@@ -86,24 +73,26 @@ public class AdminBookEdit extends JFrame {
 
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("用户信息");
 		mntmNewMenuItem_4.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 用户信息事件------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 用户信息事件-------------------
+				jf.dispose();
+				new AdminUserInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_4);
 
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("借阅信息");
 		mntmNewMenuItem_5.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 借阅信息事件------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 借阅信息事件---------------------
+				jf.dispose();
+				new AdminBorrowInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_5);
 
 		JMenu mnNewMenu_1 = new JMenu("退出系统");
 		mnNewMenu_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 退出系统事件------------------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 退出系统事件----------------------
+				System.exit(0);
 			}
 		});
 		menuBar.add(mnNewMenu_1);

@@ -41,4 +41,6 @@ public interface BookDao {
 	ArrayList<Book> listByBookname();
 
 	ArrayList<Book> listByBookauthor();
+
+	Book findByBookId(Integer bookid);
 }

@@ -1,15 +1,20 @@
 package com.seele0oO.JFrame;
 
-import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
+import com.seele0oO.jdbc.Unit.DBInJ;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Vector;
+
 public class AdminBTypeEdit extends JFrame {
 	private JFrame jf;// 类别修改窗体
 	private JTable table;// 类别信息表格组件
@@ -17,6 +22,7 @@ public class AdminBTypeEdit extends JFrame {
 	private JTextField textField;// 类别编号文本框
 	private JTextField textField_1;// 类别名称文本框
 	private JTextField textField_2;// 类别描述信息文本框
+	private Integer selectRow;
 
 	public AdminBTypeEdit() {
 		// 初始化类别修改窗体
@@ -33,8 +39,9 @@ public class AdminBTypeEdit extends JFrame {
 		// 添加类别添加菜单项
 		JMenuItem mntmNewMenuItem = new JMenuItem("类别添加");
 		mntmNewMenuItem.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {// 类别添加事件---------------待实现
-
+			public void mousePressed(MouseEvent evt) {// 类别添加事件-------------
+				jf.dispose();
+				new AdminMenuFrm();
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem);
@@ -47,16 +54,18 @@ public class AdminBTypeEdit extends JFrame {
 		// 添加书籍添加菜单项
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("书籍添加");
 		mntmNewMenuItem_2.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {// 书籍添加事件---------------待实现
-
+			public void mousePressed(MouseEvent evt) {// 书籍添加事件---------------
+				jf.dispose();
+				new AdminBookAdd();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_2);
 		// 添加书籍修改菜单项
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("书籍修改");
 		mntmNewMenuItem_3.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 书籍修改事件---------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 书籍修改事件--------------
+				jf.dispose();
+				new AdminBookEdit();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_3);
@@ -66,24 +75,26 @@ public class AdminBTypeEdit extends JFrame {
 		// 添加用户信息菜单项
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("用户信息");
 		mntmNewMenuItem_4.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) { // 用户信息事件---------------待实现
-
+			public void mousePressed(MouseEvent evt) { // 用户信息事件---------------
+				jf.dispose();
+				new AdminUserInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_4);
 		// 添加借阅信息菜单项
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("借阅信息");
 		mntmNewMenuItem_5.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {// 借阅信息事件---------------待实现
-
+			public void mousePressed(MouseEvent evt) {// 借阅信息事件--------------
+				jf.dispose();
+				new AdminBorrowInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_5);
 		// 添加退出系统
 		JMenu mnNewMenu_1 = new JMenu("退出系统");
 		mnNewMenu_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {// 退出系统事件---------------待实现
-
+			public void mousePressed(MouseEvent evt) {// 退出系统事件---------------
+				System.exit(0);
 			}
 		});
 		menuBar.add(mnNewMenu_1);
@@ -116,9 +127,25 @@ public class AdminBTypeEdit extends JFrame {
 		jf.getContentPane().add(panel);
 		panel.setLayout(null);
 
+
+		DBInJ.fastPreparedExecuteQuery("SELECT * FROM book_type ", (ResultSet resultSet) -> {
+					initializeBookTypeTableData(resultSet);
+					return null;
+				}
+		);
+
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent evt) { //鼠标监听事件------------------------待实现
-				
+
+				selectRow = table.getSelectedRow();
+
+				selectRow = table.getSelectedRow();
+				var InTableid = table.getModel().getValueAt(selectRow, 0);
+				var InTableTypeName = table.getModel().getValueAt(selectRow, 1);
+				var InTableRemark = table.getModel().getValueAt(selectRow, 2);
+				textField.setText(String.valueOf(InTableid));
+				textField_1.setText(String.valueOf(InTableTypeName));
+				textField_2.setText(String.valueOf(InTableRemark));
 			}
 		});
 
@@ -156,7 +183,15 @@ public class AdminBTypeEdit extends JFrame {
 		// 类别修改
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {//修改按钮单击事件------------------------待实现
-				
+				Integer id = (Integer) table.getModel().getValueAt(selectRow, 0);
+				Integer typename = (Integer) table.getModel().getValueAt(selectRow, 0);
+				Integer remark = (Integer) table.getModel().getValueAt(selectRow, 0);
+
+				int i = DBInJ.fastPreparedExecuteUpdate("UPDATE book_type SET typ" +
+						"ename = ?,remark = ?", typename, remark);
+				if(i==1){
+					JOptionPane.showMessageDialog(null, "修改成功");
+				}
 			}
 		});
 		btnNewButton.setFont(new Font("幼圆", Font.BOLD, 14));
@@ -165,8 +200,12 @@ public class AdminBTypeEdit extends JFrame {
 
 		JButton button = new JButton("删除");
 		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {//删除按钮单击事件------------------------待实现
-				
+			public void actionPerformed(ActionEvent e) {//删除按钮单击事件----------------------
+				Integer id = (Integer) table.getModel().getValueAt(selectRow, 0);
+				boolean b = DBInJ.fastPreparedExecute("DELETE FROM book_type WHERE id = ?", id);
+				if (!b){
+					JOptionPane.showMessageDialog(null, "删除成功");
+				}
 			}
 		});
 		button.setFont(new Font("幼圆", Font.BOLD, 14));
@@ -182,13 +221,34 @@ public class AdminBTypeEdit extends JFrame {
 		jf.setResizable(true);
 	}
 
+	private void initializeBookTypeTableData(ResultSet resultSet) {
+		TableModel model = table.getModel();
+		if (model instanceof DefaultTableModel defaultTableModel) {
+			defaultTableModel.setRowCount(0);
+			while (true) {
+				try {
+					if (!resultSet.next()) break;
+					Vector<Object> rowData = new Vector<>();
+					rowData.add(resultSet.getInt("id"));
+					rowData.add(resultSet.getString("type_name"));
+					rowData.add(resultSet.getString("remark"));
+					defaultTableModel.addRow(rowData);
+					System.out.println(rowData);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+	}
+
 	public static void main(String[] args) {
-		try {
+/*		try {
 			BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.generalNoTranslucencyShadow;
 			org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		new AdminBTypeEdit();
 	}
 }

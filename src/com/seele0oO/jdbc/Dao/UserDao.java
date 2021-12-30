@@ -12,5 +12,6 @@ public interface UserDao {
 //	int deleteBook(String name) ;
 	ArrayList<User> listAll();
 	User findByname(String username);
+	User findByUserID(Integer userid);
 	Integer addUser(User user);
 }

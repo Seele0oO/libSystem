@@ -75,4 +75,37 @@ public class BookDaoImpl {
 
 		return list;
 	}
+	public Book findByBookId (Integer bookid){
+		Connection conn = null;
+		// Statement st=null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		Book book = new Book();
+		try {
+			conn = JDBCUtils.getConn();
+//            st= conn.createStatement();
+			String sql = "select * from user where id = ?";
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, bookid);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				book.setId(rs.getInt("id"));
+				book.setBookName(rs.getString("book_name"));
+				book.setTypeId(rs.getInt("type_id"));
+				book.setAuthor(rs.getString("author"));
+				book.setPublish(rs.getString("publish"));
+				book.setPrice(rs.getDouble("price"));
+				book.setNumber(rs.getInt("number"));
+				book.setStatus(rs.getInt("status"));
+				book.setRemark(rs.getString("remark"));
+			}
+
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return book;
+	}
 }

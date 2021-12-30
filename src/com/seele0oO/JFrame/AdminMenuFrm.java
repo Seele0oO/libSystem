@@ -7,16 +7,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 
+import com.seele0oO.jdbc.Unit.DBInJ;
 import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
 
 public class AdminMenuFrm extends JFrame {
@@ -50,8 +43,18 @@ public class AdminMenuFrm extends JFrame {
 		//添加按钮
 		btnNewButton = new JButton("添加");
 		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {		//添加按钮单击事件----------------待实现
-				
+			public void actionPerformed(ActionEvent e) {		//添加按钮单击事件---------------
+				//typeName textField
+				String typeName = textField.getText();
+				String remark = textArea.getText();
+//				System.out.println(typeName+remark);
+				boolean b = DBInJ.fastPreparedExecute
+						("INSERT INTO book_type (type_name,remark) VALUES (?,?)", typeName, remark);
+				if(!b){
+					JOptionPane.showMessageDialog(null, "添加成功");
+				}else{
+					JOptionPane.showMessageDialog(null, "添加失败");
+				}
 			}
 		});
 		btnNewButton.setFont(new Font("幼圆", Font.BOLD, 14));
@@ -60,8 +63,9 @@ public class AdminMenuFrm extends JFrame {
 		//重置按钮
 		JButton button = new JButton("重置");
 		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {		//重置按钮单击事件----------------待实现
-				
+			public void actionPerformed(ActionEvent e) {		//重置按钮单击事件---------------
+				textField.setText("");
+				textArea.setText("");
 			}
 		});
 		button.setFont(new Font("幼圆", Font.BOLD, 14));
@@ -91,8 +95,9 @@ public class AdminMenuFrm extends JFrame {
 		//添加类别修改菜单
 		JMenuItem mntmNewMenuItem_1 = new JMenuItem("类别修改");
 		mntmNewMenuItem_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {			//类别修改事件----------------待实现
-			
+			public void mousePressed(MouseEvent evt) {			//类别修改事件--
+			jf.dispose();
+			new AdminBTypeEdit();
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem_1);
@@ -102,16 +107,18 @@ public class AdminMenuFrm extends JFrame {
 		//添加书籍添加菜单项
 		JMenuItem mntmNewMenuItem_2 = new JMenuItem("书籍添加");
 		mntmNewMenuItem_2.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {			//书籍添加事件----------------待实现
-				
+			public void mousePressed(MouseEvent evt) {			//书籍添加事件--------------
+				jf.dispose();
+				new AdminBookAdd();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_2);
 		//添加书籍修改菜单项
 		JMenuItem mntmNewMenuItem_3 = new JMenuItem("书籍修改");
 		mntmNewMenuItem_3.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {			//书籍修改事件-------------待实现
-				
+			public void mousePressed(MouseEvent evt) {			//书籍修改事件------------
+				jf.dispose();
+				new AdminBookEdit();
 			}
 		});
 		mnNewMenu_2.add(mntmNewMenuItem_3);
@@ -121,23 +128,25 @@ public class AdminMenuFrm extends JFrame {
 		//添加用户信息菜单项
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("用户信息");
 		mntmNewMenuItem_4.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {			//用户信息事件-------------待实现
-				
+			public void mousePressed(MouseEvent evt) {			//用户信息事件-----------
+				jf.dispose();
+				new AdminUserInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_4);
 		//添加借阅信息菜单项
 		JMenuItem mntmNewMenuItem_5 = new JMenuItem("借阅信息");
 		mntmNewMenuItem_5.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {			//借阅信息事件-------------待实现
-				
+			public void mousePressed(MouseEvent evt) {			//借阅信息事件----------
+				jf.dispose();
+				new AdminBorrowInfo();
 			}
 		});
 		menu1.add(mntmNewMenuItem_5);
 		//添加退出系统菜单
 		JMenu mnNewMenu_1 = new JMenu("退出系统");
 		mnNewMenu_1.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent evt) {			//退出系统事件-------------待实现
+			public void mousePressed(MouseEvent evt) {			//退出系统事件-----------
 				// jf.dispose();
 				System.exit(0);
 			}
