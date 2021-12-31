@@ -158,6 +158,7 @@ public class AdminBookEdit extends JFrame {
 						rowData.add(resultSet.getInt("status"));
 //						rowData.add(resultSet.getString("remark"));
 						defaultTableModel.addRow(rowData);
+//						defaultTableModel.addRow()
 					}
 				}
 			}

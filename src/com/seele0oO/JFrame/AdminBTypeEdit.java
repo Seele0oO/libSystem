@@ -24,6 +24,8 @@ public class AdminBTypeEdit extends JFrame {
 	private JTextField textField_2;// 类别描述信息文本框
 	private Integer selectRow;
 
+	private Boolean canDel;
+
 	public AdminBTypeEdit() {
 		// 初始化类别修改窗体
 		jf = new JFrame("管理员界面");
@@ -182,14 +184,14 @@ public class AdminBTypeEdit extends JFrame {
 		JButton btnNewButton = new JButton("修改");
 		// 类别修改
 		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {//修改按钮单击事件------------------------待实现
+			public void actionPerformed(ActionEvent e) {//修改按钮单击事件---------------------
 				Integer id = (Integer) table.getModel().getValueAt(selectRow, 0);
 				Integer typename = (Integer) table.getModel().getValueAt(selectRow, 0);
 				Integer remark = (Integer) table.getModel().getValueAt(selectRow, 0);
 
 				int i = DBInJ.fastPreparedExecuteUpdate("UPDATE book_type SET typ" +
 						"ename = ?,remark = ?", typename, remark);
-				if(i==1){
+				if (i == 1) {
 					JOptionPane.showMessageDialog(null, "修改成功");
 				}
 			}
@@ -202,9 +204,21 @@ public class AdminBTypeEdit extends JFrame {
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {//删除按钮单击事件----------------------
 				Integer id = (Integer) table.getModel().getValueAt(selectRow, 0);
-				boolean b = DBInJ.fastPreparedExecute("DELETE FROM book_type WHERE id = ?", id);
-				if (!b){
-					JOptionPane.showMessageDialog(null, "删除成功");
+				DBInJ.fastPreparedExecuteQuery("SELECT * FROM book WHERE type_id = ?", (ResultSet resultSet) -> {
+					if (resultSet.next()) {
+						canDel = false;
+					} else {
+						canDel = true;
+					}
+					return null;
+				}, id);
+				if (canDel) {
+					boolean b = DBInJ.fastPreparedExecute("DELETE FROM book_type WHERE id = ?", id);
+					if (!b) {
+						JOptionPane.showMessageDialog(null, "删除成功");
+					}
+				}else{
+					JOptionPane.showMessageDialog(null, "删除失败");
 				}
 			}
 		});
